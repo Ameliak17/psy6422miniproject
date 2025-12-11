@@ -1,8 +1,221 @@
 ---
 title: "Amelia Kasprzyk PSY6422 project"
 author: "Amelia Kasprzyk"
-format: html
+format:
+  html:
+    theme: minty
 editor: visual
 ---
 
-hello
+# “How do the most-streamed artists at the start of the year compare to the end of the year?”
+
+## Data collection
+
+The data used in this project was obtained from [charts.spotify.com](http://charts.spotify.com/), which publishes weekly rankings of the most-streamed songs on the platform. The two data sets used were from January 3rd-9th 2025, and nonmember 21-27th 2025 (most recent set at time of download). Both of these data sets were taken from the global charts, which show a cumulative ranking from all Spotify users worldwide.
+
+Each data set was downloaded as a CSV (comma-separated values) file. The charts are compiled by Spotify using their internal streaming logs, which record how many times each track was played by users in that week. The data is free to access but requires a free Spotify account in order to download the datasets.
+
+The variables in the data set are as follows:
+
+-   rank – the position of the track in the weekly chart
+
+-   uri – a unique Spotify identifier for each track
+
+-   artist_names – the name(s) of the artist(s) associated with each song
+
+-   track_name – the name of the song
+
+-   streams – the total number of Spotify streams for that track during the chart week
+
+-   weeks_on_chart – how many weeks the track has appeared in the chart
+
+## Research question
+
+This visualisation aims to answer the question “How do the most-streamed artists at the start of the year (January) compare to the end of the year (November)?”
+
+The visualisation will highlight which artists have the highest number of total streams in each month, how the popularity of these artists changes between the start and end of the year, and whether new artists emerge in November that were not present in January.
+
+By creating this visualisation, the project aims to make the changes in artist popularity from the start to the end of the year digestible and easy to understand.
+
+## Data wrangling
+
+The first step taken was to load the required packages and read in the CSVs.
+
+```{r}
+#load the packages required for the code
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+#read in the csv data files
+spotify_jan <- read.csv("spotify-jan.csv")
+spotify_nov <- read.csv("spotify-nov.csv")
+#have a look at the data 
+head(spotify_jan)
+head(spotify_nov)
+
+```
+
+Initially, it was necessary to standardise the naming of KPop Demon Hunters. The film, released in June of this year, lists each contributing artist individually; however, for analytical purposes, all artists were grouped under the name KPop Demon Hunters. This adjustment was applied only to the November data set, as it is absent from the January dataset.
+
+```{r}
+#rename any artist with "KPop demon" in the name to kpop demon hunters
+spotify_nov <- spotify_nov %>%
+  mutate(
+    artist_names = str_trim(artist_names),
+    artist_names = ifelse(
+      str_detect(artist_names, regex("KPop Demon", ignore_case = TRUE)),
+      "KPop Demon Hunters",
+      artist_names))
+
+```
+
+During data tidying, it was observed that some artists appeared multiple times, but streams from their collaborative tracks were not included in their individual totals. To address this and calculate the cumulative streams for all artists, the entries were separated by splitting the artist_names column at the commas.
+
+```{r}
+#Split the artist_names into separate artists (e.g., "Bruno Mars, Lady Gaga" becomes "Bruno Mars" and "Lady Gaga"). Applied to both data sets
+jan_seperate <- spotify_jan %>%
+  separate_rows(artist_names, sep = ", ")
+
+nov_seperate <- spotify_nov %>%
+  separate_rows(artist_names, sep = ", ")
+
+
+if (any(grepl(",", jan_seperate$artist_names)) | any(grepl(",", nov_seperate$artist_names))) stop("Artist splitting failed") #sanity check
+
+```
+
+The next step involved grouping the artists by name, allowing the total streams from all of their songs to be combined and sorted in descending order to identify the top artists by cumulative streams.
+
+```{r}
+#group by artist, add up streams and then rank them for both data sets
+
+#jan 
+jan_top_artists <- jan_seperate %>%
+  group_by(artist_names) %>%               # Put all songs by the same artist together
+  summarise(total_streams = sum(streams),  # Add up all their streams
+            .groups = "drop") %>%          # Remove grouping boxes
+  arrange(desc(total_streams))             # Sort from biggest to smallest
+
+#nov
+nov_top_artists  <- nov_seperate %>%
+  group_by(artist_names) %>%               # Put all songs by the same artist together
+  summarise(total_streams = sum(streams),  # Add up all their streams
+            .groups = "drop") %>%          # Remove grouping boxes
+  arrange(desc(total_streams))             # Sort from biggest to smallest
+
+```
+
+## Data visualisation checks
+
+Once the data had been cleaned, visualisations were generated for both data sets to examine and compare differences in artist popularity. The x and y axes were swapped to improve readability of the artist names.
+
+```{r}
+# Select top 10 artists from January and November in order to see the difference before making final visualisation
+jan_top10 <- jan_top_artists %>%
+  slice_max(total_streams, n = 10)
+
+# Create bar chart
+ggplot(jan_top10, aes(x = reorder(artist_names, total_streams), 
+                      y = total_streams)) +
+  geom_col(fill = "#1DB954", color = "black") +
+  coord_flip() +
+  labs(title = "Top 10 Artists by Total Streams (January)", 
+       x = "Artist", 
+       y = "Total Streams")
+
+
+#Novemever
+nov_top10 <- nov_top_artists %>%
+  slice_max(total_streams, n = 10)
+
+# Create bar chart
+ggplot(nov_top10, aes(x = reorder(artist_names, total_streams), 
+                      y = total_streams)) +
+  geom_col(fill = "#1DB954", color = "black") +
+  coord_flip() +
+  labs(title = "Top 10 Artists by Total Streams (November)", 
+       x = "Artist", 
+       y = "Total Streams")
+
+
+
+```
+
+Next, it was necessary to combine the data sets and specificity which month the streaming data was from.
+
+```{r}
+# Add a month label to each dataset
+jan_top_artists <- jan_top_artists %>%
+  mutate(month = "January")
+
+nov_top_artists <- nov_top_artists %>%
+  mutate(month = "November")
+
+# Combine both datasets into one
+combined_artists <- bind_rows(jan_top_artists, nov_top_artists)
+
+```
+
+From the combined data, the top 10 artists were separated from each month.
+
+```{r}
+top10_artists <- combined_artists %>%
+  group_by(month) %>%
+  slice_max(total_streams, n = 10) %>%
+  ungroup()
+#Create a full set of artist/month combinations for the top artists
+# This ensures every top artist has a row for each month
+all_months <- expand_grid(
+  artist_names = unique(top10_artists$artist_names),
+  month = c("January", "November"))
+
+
+```
+
+```{r}
+# Join the actual streams to this complete grid
+# Missing artists, not appearing in a month, will have NA
+plot_data <- all_months %>%
+  left_join(combined_artists, by = c("artist_names", "month")) %>%
+  # Replace NA streams with 0 for artists missing in that month
+  mutate(total_streams = replace_na(total_streams, 0))
+
+
+```
+
+## Final visualisaton
+
+Final visualisation compares the total streams of the top artists in January and November to show how artist popularity changes across the year. By presenting the data side-by-side, it is easy to see which artists maintain consistent popularity, which experience increases or decreases in streaming, and how new artists emerge in the charts. The flipped axes improve readability of artist names, and distinct colours (Spotify colour pallet) for each month allow for quick month-to-month comparisons. This visualisation helps highlight trends such as the impact of new album releases, seasonal listening patterns, and shifts in listener preferences throughout the year.
+
+```{r}
+
+# Plot side-by-side bar chart
+ggplot(plot_data, aes(x = reorder(artist_names, total_streams), 
+                      y = total_streams, 
+                      fill = month)) +
+  geom_col(position = "dodge") + #places bars for different months side by side for each artist (rather than stacked). This makes direct month-to-month comparisons easy.
+  scale_fill_manual(values = c("January" = "#1DB954", "November" = "#191414")) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Top Artists Streams Comparison: January vs November",
+    x = "Artist",
+    y = "Total Streams",
+    fill = "Month"
+  ) +
+  theme_light(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),#tilts names on x axis so artist names to not overlap
+    legend.position = "top",
+    panel.grid.minor = element_blank())
+
+```
+
+## Analysis and next steps
+
+From this data, it can be identified that most artists' streams/popularity fluctuate throughout the year, whether that be due to a song or an album release. Bad Bunny was the most-streamed artist by far in January (even across both months), but dropped down to a pretty average weekly streams count by November. This is most likely due to the fact that he released an album that week in January. This could also conversely be seen with artists such as Taylor Swift, who released an album in October, so her streams were much higher in November than in January. If this data were to be looked at again, it could be interesting to look at such trends with album releases and how long after release the album drops off in popularity. For example, Sabrina Carpenter released an album in August of 2024 and 2025, but her November streams are lower than in January. This could suggest that her newer album had less of an impact than her older one. However, these trends would have to be properly analysed.
+
+Throughout this project, I have learned how to clean and prepare real-world data for analysis, as well as create a visualisation from the data I have prepared. I also developed a better understanding of how data visualisation can be used to communicate trends in a way that is accessible and easy to interpret.
+
+With more time and data, future work could include analysing multiple weeks or months to identify longer-term trends, seasonal patterns, and the sustained impact of album releases on artist popularity.

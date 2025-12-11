@@ -21,6 +21,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -34,7 +69,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="index_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="index_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="index_files/libs/bootstrap/bootstrap-ceb3cc9b7eaae3ea3617014063f05c9e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -70,7 +105,271 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>hello</p>
+<section id="how-do-the-most-streamed-artists-at-the-start-of-the-year-compare-to-the-end-of-the-year" class="level1">
+<h1>“How do the most-streamed artists at the start of the year compare to the end of the year?”</h1>
+<section id="data-collection" class="level2">
+<h2 class="anchored" data-anchor-id="data-collection">Data collection</h2>
+<p>The data used in this project was obtained from&nbsp;<a href="http://charts.spotify.com/">charts.spotify.com</a>, which publishes weekly rankings of the most-streamed songs on the platform. The two data sets used were from January 3rd-9th 2025, and nonmember 21-27th 2025 (most recent set at time of download). Both of these data sets were taken from the global charts, which show a cumulative ranking from all Spotify users worldwide.</p>
+<p>Each data set was downloaded as a CSV (comma-separated values) file. The charts are compiled by Spotify using their internal streaming logs, which record how many times each track was played by users in that week. The data is free to access but requires a free Spotify account in order to download the datasets.</p>
+<p>The variables in the data set are as follows:</p>
+<ul>
+<li><p>rank – the position of the track in the weekly chart</p></li>
+<li><p>uri – a unique Spotify identifier for each track</p></li>
+<li><p>artist_names – the name(s) of the artist(s) associated with each song</p></li>
+<li><p>track_name – the name of the song</p></li>
+<li><p>streams – the total number of Spotify streams for that track during the chart week</p></li>
+<li><p>weeks_on_chart – how many weeks the track has appeared in the chart</p></li>
+</ul>
+</section>
+<section id="research-question" class="level2">
+<h2 class="anchored" data-anchor-id="research-question">Research question</h2>
+<p>This visualisation aims to answer the question “How do the most-streamed artists at the start of the year (January) compare to the end of the year (November)?”</p>
+<p>The visualisation will highlight which artists have the highest number of total streams in each month, how the popularity of these artists changes between the start and end of the year, and whether new artists emerge in November that were not present in January.</p>
+<p>By creating this visualisation, the project aims to make the changes in artist popularity from the start to the end of the year digestible and easy to understand.</p>
+</section>
+<section id="data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling">Data wrangling</h2>
+<p>The first step taken was to load the required packages and read in the CSVs.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load the packages required for the code</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.1     ✔ stringr   1.5.2
+✔ lubridate 1.9.4     ✔ tibble    3.3.0
+✔ purrr     1.1.0     ✔ tidyr     1.3.1
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#read in the csv data files</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>spotify_jan <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"spotify-jan.csv"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>spotify_nov <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"spotify-nov.csv"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#have a look at the data </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(spotify_jan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  rank                                  uri          artist_names
+1    1 spotify:track:2plbrEY59IikOBgBGLjaoe Lady Gaga, Bruno Mars
+2    2 spotify:track:4wJ5Qq0jBN4ajy7ouZIV1c      ROSÉ, Bruno Mars
+3    3 spotify:track:7ne4VBA60CxGM75vw0EYad         Gracie Abrams
+4    4 spotify:track:6dOtVTDdiauQNBQEDOtlAB         Billie Eilish
+5    5 spotify:track:7tI8dRuH2Yc6RuoTjxo4dU                 Jimin
+6    6 spotify:track:2CGNAOSuO1MEFCbBRgUzjd   Kendrick Lamar, SZA
+          track_name
+1   Die With A Smile
+2               APT.
+3     That’s So True
+4 BIRDS OF A FEATHER
+5                Who
+6  luther (with sza)
+                                                        source peak_rank
+1                                                   Interscope         1
+2                                             Atlantic Records         1
+3 Gracie Abrams, under exclusive license to Interscope Records         3
+4                                  Darkroom/Interscope Records         1
+5                                                 BIGHIT MUSIC         1
+6        pgLang, under exclusive license to Interscope Records         3
+  previous_rank weeks_on_chart  streams
+1             1             21 70779585
+2             2             12 64078762
+3             4             12 47295577
+4             3             34 46903880
+5             5             25 32153248
+6             7              7 30513094</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(spotify_nov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  rank                                  uri
+1    1 spotify:track:53iuhJlwXhSER5J2IYYv1W
+2    2 spotify:track:1CPZ5BxNNd0n0nF4Orb9JS
+3    3 spotify:track:1qbmS6ep2hbBRaEZFpn7BX
+4    4 spotify:track:7qjZnBKE73H4Oxkopwulqe
+5    5 spotify:track:2RkZ5LkEzeHGRsmDqKwmaJ
+6    6 spotify:track:6sGIMrtIzQjdzNndVxe397
+                                                  artist_names
+1                                                 Taylor Swift
+2 HUNTR/X, EJAE, AUDREY NUNA, REI AMI, KPop Demon Hunters Cast
+3                                                  Olivia Dean
+4                                                        sombr
+5                                                  Alex Warren
+6                                                  Olivia Dean
+                 track_name              source peak_rank previous_rank
+1       The Fate of Ophelia        Taylor Swift         1             1
+2                    Golden K-Pop Demon Hunters         1             2
+3                Man I Need       PLG - Capitol         3             3
+4           back to friends      Warner Records         1             4
+5                  Ordinary    Atlantic Records         1             5
+6 So Easy (To Fall In Love)       PLG - Capitol         6             6
+  weeks_on_chart  streams
+1              8 47728374
+2             23 35973994
+3             14 34134732
+4             36 29822022
+5             42 27859100
+6              9 27454118</code></pre>
+</div>
+</div>
+<p>Initially, it was necessary to standardise the naming of KPop Demon Hunters. The film, released in June of this year, lists each contributing artist individually; however, for analytical purposes, all artists were grouped under the name KPop Demon Hunters. This adjustment was applied only to the November data set, as it is absent from the January dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#rename any artist with "KPop demon" in the name to kpop demon hunters</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>spotify_nov <span class="ot">&lt;-</span> spotify_nov <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">artist_names =</span> <span class="fu">str_trim</span>(artist_names),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">artist_names =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_detect</span>(artist_names, <span class="fu">regex</span>(<span class="st">"KPop Demon"</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"KPop Demon Hunters"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      artist_names))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>During data tidying, it was observed that some artists appeared multiple times, but streams from their collaborative tracks were not included in their individual totals. To address this and calculate the cumulative streams for all artists, the entries were separated by splitting the artist_names column at the commas.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Split the artist_names into separate artists (e.g., "Bruno Mars, Lady Gaga" becomes "Bruno Mars" and "Lady Gaga"). Applied to both data sets</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>jan_seperate <span class="ot">&lt;-</span> spotify_jan <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_rows</span>(artist_names, <span class="at">sep =</span> <span class="st">", "</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>nov_seperate <span class="ot">&lt;-</span> spotify_nov <span class="sc">%&gt;%</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_rows</span>(artist_names, <span class="at">sep =</span> <span class="st">", "</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">grepl</span>(<span class="st">","</span>, jan_seperate<span class="sc">$</span>artist_names)) <span class="sc">|</span> <span class="fu">any</span>(<span class="fu">grepl</span>(<span class="st">","</span>, nov_seperate<span class="sc">$</span>artist_names))) <span class="fu">stop</span>(<span class="st">"Artist splitting failed"</span>) <span class="co">#sanity check</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The next step involved grouping the artists by name, allowing the total streams from all of their songs to be combined and sorted in descending order to identify the top artists by cumulative streams.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#group by artist, add up streams and then rank them for both data sets</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#jan </span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>jan_top_artists <span class="ot">&lt;-</span> jan_seperate <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(artist_names) <span class="sc">%&gt;%</span>               <span class="co"># Put all songs by the same artist together</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_streams =</span> <span class="fu">sum</span>(streams),  <span class="co"># Add up all their streams</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span>          <span class="co"># Remove grouping boxes</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_streams))             <span class="co"># Sort from biggest to smallest</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#nov</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>nov_top_artists  <span class="ot">&lt;-</span> nov_seperate <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(artist_names) <span class="sc">%&gt;%</span>               <span class="co"># Put all songs by the same artist together</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_streams =</span> <span class="fu">sum</span>(streams),  <span class="co"># Add up all their streams</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span>          <span class="co"># Remove grouping boxes</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_streams))             <span class="co"># Sort from biggest to smallest</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-visualisation-checks" class="level2">
+<h2 class="anchored" data-anchor-id="data-visualisation-checks">Data visualisation checks</h2>
+<p>Once the data had been cleaned, visualisations were generated for both data sets to examine and compare differences in artist popularity. The x and y axes were swapped to improve readability of the artist names.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select top 10 artists from January and November in order to see the difference before making final visualisation</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>jan_top10 <span class="ot">&lt;-</span> jan_top_artists <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(total_streams, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create bar chart</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(jan_top10, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(artist_names, total_streams), </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> total_streams)) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#1DB954"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Artists by Total Streams (January)"</span>, </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Artist"</span>, </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Total Streams"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Novemever</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>nov_top10 <span class="ot">&lt;-</span> nov_top_artists <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(total_streams, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create bar chart</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nov_top10, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(artist_names, total_streams), </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> total_streams)) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#1DB954"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Artists by Total Streams (November)"</span>, </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Artist"</span>, </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Total Streams"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Next, it was necessary to combine the data sets and specificity which month the streaming data was from.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a month label to each dataset</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>jan_top_artists <span class="ot">&lt;-</span> jan_top_artists <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month =</span> <span class="st">"January"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>nov_top_artists <span class="ot">&lt;-</span> nov_top_artists <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month =</span> <span class="st">"November"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine both datasets into one</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>combined_artists <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(jan_top_artists, nov_top_artists)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>From the combined data, the top 10 artists were separated from each month.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>top10_artists <span class="ot">&lt;-</span> combined_artists <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(total_streams, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Create a full set of artist/month combinations for the top artists</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This ensures every top artist has a row for each month</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>all_months <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">artist_names =</span> <span class="fu">unique</span>(top10_artists<span class="sc">$</span>artist_names),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">month =</span> <span class="fu">c</span>(<span class="st">"January"</span>, <span class="st">"November"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join the actual streams to this complete grid</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing artists, not appearing in a month, will have NA</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> all_months <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(combined_artists, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"artist_names"</span>, <span class="st">"month"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Replace NA streams with 0 for artists missing in that month</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_streams =</span> <span class="fu">replace_na</span>(total_streams, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="final-visualisaton" class="level2">
+<h2 class="anchored" data-anchor-id="final-visualisaton">Final visualisaton</h2>
+<p>Final visualisation compares the total streams of the top artists in January and November to show how artist popularity changes across the year. By presenting the data side-by-side, it is easy to see which artists maintain consistent popularity, which experience increases or decreases in streaming, and how new artists emerge in the charts. The flipped axes improve readability of artist names, and distinct colours (Spotify colour pallet) for each month allow for quick month-to-month comparisons. This visualisation helps highlight trends such as the impact of new album releases, seasonal listening patterns, and shifts in listener preferences throughout the year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot side-by-side bar chart</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(artist_names, total_streams), </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> total_streams, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fill =</span> month)) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span> <span class="co">#places bars for different months side by side for each artist (rather than stacked). This makes direct month-to-month comparisons easy.</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"January"</span> <span class="ot">=</span> <span class="st">"#1DB954"</span>, <span class="st">"November"</span> <span class="ot">=</span> <span class="st">"#191414"</span>)) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Top Artists Streams Comparison: January vs November"</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Artist"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Total Streams"</span>,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Month"</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>),<span class="co">#tilts names on x axis so artist names to not overlap</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="analysis-and-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-and-next-steps">Analysis and next steps</h2>
+<p>From this data, it can be identified that most artists’ streams/popularity fluctuate throughout the year, whether that be due to a song or an album release. Bad Bunny was the most-streamed artist by far in January (even across both months), but dropped down to a pretty average weekly streams count by November. This is most likely due to the fact that he released an album that week in January. This could also conversely be seen with artists such as Taylor Swift, who released an album in October, so her streams were much higher in November than in January. If this data were to be looked at again, it could be interesting to look at such trends with album releases and how long after release the album drops off in popularity. For example, Sabrina Carpenter released an album in August of 2024 and 2025, but her November streams are lower than in January. This could suggest that her newer album had less of an impact than her older one. However, these trends would have to be properly analysed.</p>
+<p>Throughout this project, I have learned how to clean and prepare real-world data for analysis, as well as create a visualisation from the data I have prepared. I also developed a better understanding of how data visualisation can be used to communicate trends in a way that is accessible and easy to interpret.</p>
+<p>With more time and data, future work could include analysing multiple weeks or months to identify longer-term trends, seasonal patterns, and the sustained impact of album releases on artist popularity.</p>
+</section>
+</section>
 
 </main>
 <!-- /main column -->
