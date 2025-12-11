@@ -24,13 +24,24 @@ Variables:
 
 -   uri – a unique Spotify identifier for each track
 
--   artist_names – the name(s) of the artist(s) associated with each song
+-   artist_names – the names of the artists associated with each song
 
 -   track_name – the name of the song
 
 -   streams – the total number of Spotify streams for that track during the chart week
 
 -   weeks_on_chart – how many weeks the track has appeared in the chart
+
+Open index.html to view the full project.
+
+## Folder organisation
+
+- raw_data – original CSVs  
+- index_files – figures from analysis  
+- index.qmd – main analysis  
+- README.md – project overview
+- psy6422miniproject.Rproj- original Quarto file
+
 
 ## How to Run
 

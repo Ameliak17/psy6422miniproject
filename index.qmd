@@ -21,7 +21,7 @@ The variables in the data set are as follows:
 
 -   uri – a unique Spotify identifier for each track
 
--   artist_names – the name(s) of the artist(s) associated with each song
+-   artist_names – the names of the artists associated with each song
 
 -   track_name – the name of the song
 
@@ -47,12 +47,14 @@ The first step taken was to load the required packages and read in the CSVs.
 #load the packages required for the code
 library(ggplot2)
 library(tidyverse)
+library(plotly)
 ```
 
 ```{r}
 #read in the csv data files
-spotify_jan <- read.csv("spotify-jan.csv")
-spotify_nov <- read.csv("spotify-nov.csv")
+spotify_jan <- read.csv("raw_data/spotify-jan.csv")
+spotify_nov <- read.csv("raw_data/spotify-nov.csv")
+
 #have a look at the data 
 head(spotify_jan)
 head(spotify_nov)
@@ -106,6 +108,10 @@ nov_top_artists  <- nov_seperate %>%
   summarise(total_streams = sum(streams),  # Add up all their streams
             .groups = "drop") %>%          # Remove grouping boxes
   arrange(desc(total_streams))             # Sort from biggest to smallest
+
+#sanity check
+stopifnot(nrow(spotify_jan) > 0, nrow(spotify_nov) > 0)
+
 
 ```
 
@@ -200,8 +206,10 @@ ggplot(plot_data, aes(x = reorder(artist_names, total_streams),
   geom_col(position = "dodge") + #places bars for different months side by side for each artist (rather than stacked). This makes direct month-to-month comparisons easy.
   scale_fill_manual(values = c("January" = "#1DB954", "November" = "#191414")) +
   scale_y_continuous(labels = scales::comma) +
-  labs(
-    title = "Top Artists Streams Comparison: January vs November",
+labs(
+  title = "Top Artists Streams Comparison: January vs November",
+  subtitle = "Comparing cumulative weekly streams for each month reveals shifts in year-end vs year-start popularity."
+,
     x = "Artist",
     y = "Total Streams",
     fill = "Month"
@@ -212,12 +220,46 @@ ggplot(plot_data, aes(x = reorder(artist_names, total_streams),
     legend.position = "top",
     panel.grid.minor = element_blank())
 
+sessionInfo()
+
 ```
 
-## Analysis and next steps
+## Interactive Visualisation
 
-From this data, it can be identified that most artists' streams/popularity fluctuate throughout the year, whether that be due to a song or an album release. Bad Bunny was the most-streamed artist by far in January (even across both months), but dropped down to a pretty average weekly streams count by November. This is most likely due to the fact that he released an album that week in January. This could also conversely be seen with artists such as Taylor Swift, who released an album in October, so her streams were much higher in November than in January. If this data were to be looked at again, it could be interesting to look at such trends with album releases and how long after release the album drops off in popularity. For example, Sabrina Carpenter released an album in August of 2024 and 2025, but her November streams are lower than in January. This could suggest that her newer album had less of an impact than her older one. However, these trends would have to be properly analysed.
+To make the comparison more engaging and allow viewers to explore the data more closely, I decided to add an interactive feature using **plotly**. This lets you hover over bars to see exact stream numbers for each artist and month.
 
-Throughout this project, I have learned how to clean and prepare real-world data for analysis, as well as create a visualisation from the data I have prepared. I also developed a better understanding of how data visualisation can be used to communicate trends in a way that is accessible and easy to interpret.
+```{r}
 
-With more time and data, future work could include analysing multiple weeks or months to identify longer-term trends, seasonal patterns, and the sustained impact of album releases on artist popularity.
+p <- ggplot(plot_data, aes(x = reorder(artist_names, total_streams), 
+                           y = total_streams, 
+                           fill = month)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("January" = "#1DB954", "November" = "#191414")) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Top Artists Streams Comparison: January vs November",
+    subtitle = "Comparing cumulative weekly streams for each month reveals shifts in year-end vs year-start popularity.",
+    x = "Artist",
+    y = "Total Streams",
+    fill = "Month"
+  ) +
+  theme_light(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top",
+    panel.grid.minor = element_blank()
+  )
+
+ggplotly(p)
+
+```
+
+## Analysis and Interpretation
+
+The data shows that artist popularity fluctuates significantly throughout the year, often corresponding with album releases or major promotional events. For example, Bad Bunny was the most-streamed artist in January, reflecting the release of his new album that week, but his streams declined to average levels by November. Conversely, Taylor Swift experienced higher streaming numbers in November, coinciding with her October album release. However, Sabrina Carpenter’s streams decreased in November compared to January despite her August album releases, suggesting that her newest release did not have the same impact as her 2024 album. These patterns highlight the importance of considering release timing, seasonality, and fan engagement when interpreting streaming data.
+
+These visualisations also emphasize how new artists emerge in the charts while others maintain or lose popularity, providing insight into the dynamics of global streaming trends. One limitation of this analysis is that only two weeks of data were examined; broader temporal coverage would be necessary to confirm sustained trends and seasonal effects. Additionally, cumulative streams do not capture platform-specific promotional effects or regional variations, which could bias the interpretation.
+
+### Reflections and Future Work
+
+This project strengthened my skills in cleaning, wrangling, and visualising real-world data, while demonstrating the value of interactive visualisations for communicating insights effectively. Future work could expand to multiple weeks or months to investigate long-term trends, seasonal listening patterns, and the sustained impact of album releases on artist popularity. Incorporating interactivity, such as Plotly charts, also enhances accessibility and allows viewers to explore detailed comparisons between artists and months. Further extensions could include analyzing correlations between streaming trends and external factors like social media activity, release schedules, or genre-specific popularity.
