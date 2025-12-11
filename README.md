@@ -12,8 +12,8 @@ This project analyses the most-streamed artists on Spotify, comparing their cumu
     -   Data cleaning and preparation (e.g., splitting collaborative artists, grouping by artist)
     -   Calculation of cumulative streams per artist
     -   Comparison of top artists between January and November using visualisations
--   **Output:** Interactive and static visualisations created in Quarto/ggplot2
+-   **Output:** Visualisations created in Quarto/ggplot2
 
 ## How to Run
 
-1.  **Clone the repository:** \`\`\`bash git clone <https://github.com/yourusername/spotify-top-artists.git>
+1.  **Clone the repository:** \`\`\`bash git clone <https://github.com/Ameliak17/psy6422miniproject/tree/main>
