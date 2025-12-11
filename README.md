@@ -16,7 +16,7 @@ This project analyses the most-streamed artists on Spotify, comparing their cumu
 
 ## Data Description
 
-The data for this project was taken from charts.spotify.com, which publishes weekly global rankings of the most-streamed songs on Spotify. Two weekly data sets were used: 3-9th of January 2025 and 21-27th November 2025 (most recent chart available at time of download) Each data set was downloaded as a CSV file from the Spotify Global Weekly Charts, which acunulate streaming counts from all Spotify users worldwide. The charts are generated using Spotify’s internal streaming logs and are freely accessible with a standard Spotify account.
+The data for this project was taken from charts.spotify.com, which publishes weekly global rankings of the most-streamed songs on Spotify. Two weekly data sets were used: 3-9th of January 2025 and 21-27th November 2025 (most recent chart available at time of download) Each data set was downloaded as a CSV file from the Spotify Global Weekly Charts, which accumulate streaming counts from all Spotify users worldwide. The charts are generated using Spotify’s internal streaming logs and are freely accessible with a standard Spotify account.
 
 Variables:
 
