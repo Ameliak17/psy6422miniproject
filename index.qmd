@@ -11,9 +11,9 @@ editor: visual
 
 ## Data collection
 
-The data used in this project was obtained from [charts.spotify.com](http://charts.spotify.com/), which publishes weekly rankings of the most-streamed songs on the platform. The two data sets used were from January 3rd-9th 2025, and nonmember 21-27th 2025 (most recent set at time of download). Both of these data sets were taken from the global charts, which show a cumulative ranking from all Spotify users worldwide.
+The data used in this project was obtained from [charts.spotify.com](http://charts.spotify.com/), which publishes weekly rankings of the most-streamed songs on the platform. The two data sets used were from January 3rd-9th 2025, and Novemver 21-27th 2025 (most recent set at time of download). Both of these data sets were taken from the global charts, which show a cumulative ranking from all Spotify users worldwide.
 
-Each data set was downloaded as a CSV (comma-separated values) file. The charts are compiled by Spotify using their internal streaming logs, which record how many times each track was played by users in that week. The data is free to access but requires a free Spotify account in order to download the datasets.
+Each data set was downloaded as a CSV (comma-separated values) file. The charts are compiled by Spotify using their internal streaming logs, which record how many times each track was played by users in that week. The data is free to access but requires a free Spotify account in order to download the data sets.
 
 The variables in the data set are as follows:
 
@@ -134,7 +134,7 @@ ggplot(jan_top10, aes(x = reorder(artist_names, total_streams),
        y = "Total Streams")
 
 
-#Novemever
+#November
 nov_top10 <- nov_top_artists %>%
   slice_max(total_streams, n = 10)
 
