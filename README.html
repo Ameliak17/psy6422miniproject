@@ -377,8 +377,30 @@ artists, grouping by artist)</li>
 <li>Comparison of top artists between January and November using
 visualisations</li>
 </ul></li>
-<li><strong>Output:</strong> Interactive and static visualisations
-created in Quarto/ggplot2</li>
+<li><strong>Output:</strong> Visualisations created in
+Quarto/ggplot2</li>
+</ul>
+</div>
+<div id="data-description-codebook" class="section level2">
+<h2>Data Description (Codebook)</h2>
+<p>The data for this project was sourced from charts.spotify.com, which
+publishes weekly global rankings of the most-streamed songs on Spotify.
+Two weekly datasets were used: January 3–9, 2025 November 21–27, 2025
+(most recent chart available at time of download) Each dataset was
+downloaded as a CSV file from the Spotify Global Weekly Charts, which
+aggregate streaming counts from all Spotify users worldwide. The charts
+are generated using Spotify’s internal streaming logs and are freely
+accessible with a standard Spotify account. Variables: - rank – the
+position of the track in the weekly chart</p>
+<ul>
+<li><p>uri – a unique Spotify identifier for each track</p></li>
+<li><p>artist_names – the name(s) of the artist(s) associated with each
+song</p></li>
+<li><p>track_name – the name of the song</p></li>
+<li><p>streams – the total number of Spotify streams for that track
+during the chart week</p></li>
+<li><p>weeks_on_chart – how many weeks the track has appeared in the
+chart</p></li>
 </ul>
 </div>
 <div id="how-to-run" class="section level2">
