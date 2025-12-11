@@ -1,0 +1,8 @@
+---
+title: "Amelia Kasprzyk PSY6422 project"
+author: "Amelia Kasprzyk"
+format: html
+editor: visual
+---
+
+hello
