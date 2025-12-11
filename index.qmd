@@ -31,7 +31,9 @@ The variables in the data set are as follows:
 
 ## Research question
 
-This visualisation aims to answer the question “How do the most-streamed artists at the start of the year (January) compare to the end of the year (November)?”
+This visualisation aims to answer the question :
+
+*“How do the most-streamed artists at the start of the year (January) compare to the end of the year (November)?”*
 
 The visualisation will highlight which artists have the highest number of total streams in each month, how the popularity of these artists changes between the start and end of the year, and whether new artists emerge in November that were not present in January.
 
